@@ -1,3 +1,4 @@
+import numpy as np
 from math import hypot
 
 class Node2D:
@@ -46,12 +47,47 @@ class Element2D:
         stiffness = E*A/L
         return stiffness
 
+    def get_local_stiffness_matrix(self):
+        k = self.get_stiffness()
+        matrix = np.array([[k, 0, -k, 0],
+                           [0, 0, 0, 0],
+                           [-k, 0, k, 0],
+                           [0, 0, 0, 0]])
+        return matrix
+
 class Truss2D:
 
-    pass
+    def __init__(self, node_dict, element_dict):
+        """
+
+        :param node_dict: dictionary - {node_label : Node2D object}
+        :param element_dict: dictionary - {element_label : Element2D object}
+        """
+        # independent attributes
+        self.node_dict = node_dict
+        self.element_dict = element_dict
+        # dependent attributes
+        self.number_of_nodes = len(self.node_dict)
+        self.number_of_elements = len(self.element_dict)
+
+class Parser:
+
+    def __init__(self, filename):
+        """
+
+        :param filename: file from which to parse truss data
+        """
+        self.filename = filename
+
+    def get_nodes(self):
+        """
+
+        :return: dictionary - {node_label : Node2D object}
+        """
+        pass
+
+
 
 if __name__ == '__main__':
 
-    n1 = Node2D(1, 1)
-    n2 = Node2D(3, 1)
-    e1 = Element2D(n1, n2, 1, 1)
+    pass
