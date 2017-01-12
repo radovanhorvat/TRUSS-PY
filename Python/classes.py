@@ -1,4 +1,5 @@
 import numpy as np
+import csv
 from math import hypot
 
 class Node2D:
@@ -78,16 +79,58 @@ class Parser:
         :param filename: file from which to parse truss data
         """
         self.filename = filename
+        self.node_coordinate_table = {}
 
-    def get_nodes(self):
+    def get_nodes_elements(self):
         """
 
-        :return: dictionary - {node_label : Node2D object}
+        :return: node_dict, element_dict
+
+        node_dict - {node_label : Node2D object}
+        element_dict - {element_label : Element2D object}
         """
-        pass
-
-
+        block_start_name = 'ELEMENTS'
+        block_end_name = 'END ELEMENTS'
+        element_dict = {}
+        node_dict = {}
+        start_element_label = 1
+        element_label_step = 1
+        with open(self.filename, 'r') as csvfile:
+            data = csv.reader(csvfile, delimiter=',')
+            element_data = []
+            for row in data:
+                if block_start_name in row[0]:
+                    continue
+                if block_end_name not in row[0]:
+                    float_row = [float(x) for x in row]
+                    element_data.append(float_row)
+        for i, data in enumerate(element_data):
+            element_label = start_element_label + i*element_label_step
+            node1_x, node1_y = data[0], data[1]
+            node2_x, node2_y = data[2], data[3]
+            node1_label = 2*i
+            node2_label = 2*i + 1
+            node1 = Node2D(node1_x, node1_y)
+            node2 = Node2D(node2_x, node2_y)
+            try:
+                self.node_coordinate_table[(node1_x, node1_y)]
+            except KeyError:
+                self.node_coordinate_table[(node1_x, node1_y)] = 1
+                node_dict[node1_label] = node1
+            try:
+                self.node_coordinate_table[(node2_x, node2_y)]
+            except KeyError:
+                self.node_coordinate_table[(node2_x, node2_y)] = 1
+                node_dict[node2_label] = node2
+            E = data[4]
+            A = data[5]
+            element = Element2D(node1, node2, E, A)
+            element_dict[element_label] = element
+        return node_dict, element_dict
 
 if __name__ == '__main__':
 
-    pass
+    x = Parser('input_file_format.txt')
+    nodes, elements = x.get_nodes_elements()
+    print(nodes)
+    print(elements)
