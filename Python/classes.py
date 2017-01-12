@@ -4,7 +4,7 @@ from math import hypot
 
 class Node2D:
 
-    def __init__(self, x, y, ux=0, uy=0):
+    def __init__(self, x, y, ux=0, uy=0, label=None):
         """
 
         :param x: float - x coordinate
@@ -16,6 +16,7 @@ class Node2D:
         self.y = y
         self.ux = ux
         self.uy = uy
+        self.label = label
 
     def get_point(self):
         return self.x, self.y
@@ -30,10 +31,13 @@ class Element2D:
         :param E: float - modulus of elasticity in [kN/m^2]
         :param A: float - cross section area in [m^2]
         """
+        # independent attributes
         self.node1 = node1
         self.node2 = node2
         self.E = E
         self.A = A
+        # dependent attributes
+        self.node_labels = (self.node1.label, self.node2.label)
 
     def get_length(self):
         x1, y1 = self.node1.get_point()
@@ -108,19 +112,19 @@ class Parser:
             element_label = start_element_label + i*element_label_step
             node1_x, node1_y = data[0], data[1]
             node2_x, node2_y = data[2], data[3]
-            node1_label = 2*i
-            node2_label = 2*i + 1
-            node1 = Node2D(node1_x, node1_y)
-            node2 = Node2D(node2_x, node2_y)
+            node1_label = 2*i + 1
+            node2_label = 2*i + 2
+            node1 = Node2D(node1_x, node1_y, 0, 0, node1_label)
+            node2 = Node2D(node2_x, node2_y, 0, 0, node2_label)
             try:
                 self.node_coordinate_table[(node1_x, node1_y)]
             except KeyError:
-                self.node_coordinate_table[(node1_x, node1_y)] = 1
+                self.node_coordinate_table[(node1_x, node1_y)] = node1_label
                 node_dict[node1_label] = node1
             try:
                 self.node_coordinate_table[(node2_x, node2_y)]
             except KeyError:
-                self.node_coordinate_table[(node2_x, node2_y)] = 1
+                self.node_coordinate_table[(node2_x, node2_y)] = node2_label
                 node_dict[node2_label] = node2
             E = data[4]
             A = data[5]
@@ -134,3 +138,8 @@ if __name__ == '__main__':
     nodes, elements = x.get_nodes_elements()
     print(nodes)
     print(elements)
+    for key, value in elements.items():
+        print(value.node_labels)
+
+
+
