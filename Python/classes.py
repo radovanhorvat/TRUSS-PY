@@ -74,6 +74,18 @@ class Truss2D:
         # dependent attributes
         self.number_of_nodes = len(self.node_dict)
         self.number_of_elements = len(self.element_dict)
+        self.dof_dict_node = {}
+        self.dof_dict_element = {}
+
+    def get_dofs(self):
+        i = 0
+        for node_label, node in self.node_dict.items():
+            self.dof_dict_node[node_label] = (2*i, 1 + 2*i)
+            i += 1
+        for element_label, element in self.element_dict.items():
+            node1_label = element.node_labels[0]
+            node2_label = element.node_labels[1]
+            self.dof_dict_element[element_label] = self.dof_dict_node[node1_label] + self.dof_dict_node[node2_label]
 
 class Parser:
 
@@ -118,11 +130,13 @@ class Parser:
             node2 = Node2D(node2_x, node2_y, 0, 0, node2_label)
             try:
                 self.node_coordinate_table[(node1_x, node1_y)]
+                node1 = node_dict[self.node_coordinate_table[(node1_x, node1_y)]]
             except KeyError:
                 self.node_coordinate_table[(node1_x, node1_y)] = node1_label
                 node_dict[node1_label] = node1
             try:
                 self.node_coordinate_table[(node2_x, node2_y)]
+                node2 = node_dict[self.node_coordinate_table[(node1_x, node1_y)]]
             except KeyError:
                 self.node_coordinate_table[(node2_x, node2_y)] = node2_label
                 node_dict[node2_label] = node2
@@ -136,10 +150,22 @@ if __name__ == '__main__':
 
     x = Parser('input_file_format.txt')
     nodes, elements = x.get_nodes_elements()
-    print(nodes)
-    print(elements)
-    for key, value in elements.items():
-        print(value.node_labels)
+    #print(nodes)
+    #print(elements)
 
+    # print("---nodes")
+    # for key, value in nodes.items():
+    #     print(key, value.label)
+    #
+    # print("---elements")
+    # for key, value in elements.items():
+    #     print(value.node1.label)
+    #     print(value.node2.label)
+    #     print(value.node_labels)
+    #
+    # print(x.node_coordinate_table)
 
-
+    truss = Truss2D(nodes, elements)
+    truss.get_dofs()
+    print(truss.dof_dict_node)
+    print(truss.dof_dict_element)
