@@ -60,6 +60,19 @@ class Element2D:
                            [0, 0, 0, 0]])
         return matrix
 
+    def get_global_stiffness_matrix(self):
+        k = self.get_stiffness()
+        L = self.get_length()
+        x1, y1 = self.node1.get_point()
+        x2, y2 = self.node2.get_point()
+        dx, dy = x2 - x1, y2 - y1
+        c, s = dx/L, dy/L
+        matrix = np.array([[k*c**2, k*s*c, -k*c**2, -k*s*c],
+                           [k*s*c, k*s**2, -k*s*c, -k*s**2],
+                           [-k*c**2, -k*s*c, k*c**2, k*s*c],
+                           [-k*s*c, -k*s**2, k*s*c, k*s**2]])
+        return matrix
+
 class Truss2D:
 
     def __init__(self, node_dict, element_dict):
@@ -74,10 +87,16 @@ class Truss2D:
         # dependent attributes
         self.number_of_nodes = len(self.node_dict)
         self.number_of_elements = len(self.element_dict)
+        self.NDOF = 2*self.number_of_nodes
         self.dof_dict_node = {}
         self.dof_dict_element = {}
 
     def get_dofs(self):
+        """
+
+        :return: populates self.dof_dict_node, self.dof_dict_element
+                 dicts with dof labels
+        """
         i = 0
         for node_label, node in self.node_dict.items():
             self.dof_dict_node[node_label] = (2*i, 1 + 2*i)
@@ -86,6 +105,20 @@ class Truss2D:
             node1_label = element.node_labels[0]
             node2_label = element.node_labels[1]
             self.dof_dict_element[element_label] = self.dof_dict_node[node1_label] + self.dof_dict_node[node2_label]
+
+    def get_master_stiffness_matrix(self):
+        """
+
+        :return: truss master stiffness matrix M
+        """
+        M =  np.zeros((self.NDOF, self.NDOF))
+        for label, element in self.element_dict.items():
+            m = element.get_global_stiffness_matrix()
+            dofs = self.dof_dict_element[label]
+            for i in range(4):
+                for j in range(4):
+                    M[dofs[i]][dofs[j]] += m[i][j]
+        return M
 
 class Parser:
 
@@ -129,14 +162,12 @@ class Parser:
             node1 = Node2D(node1_x, node1_y, 0, 0, node1_label)
             node2 = Node2D(node2_x, node2_y, 0, 0, node2_label)
             try:
-                self.node_coordinate_table[(node1_x, node1_y)]
                 node1 = node_dict[self.node_coordinate_table[(node1_x, node1_y)]]
             except KeyError:
                 self.node_coordinate_table[(node1_x, node1_y)] = node1_label
                 node_dict[node1_label] = node1
             try:
-                self.node_coordinate_table[(node2_x, node2_y)]
-                node2 = node_dict[self.node_coordinate_table[(node1_x, node1_y)]]
+                node2 = node_dict[self.node_coordinate_table[(node2_x, node2_y)]]
             except KeyError:
                 self.node_coordinate_table[(node2_x, node2_y)] = node2_label
                 node_dict[node2_label] = node2
@@ -150,22 +181,31 @@ if __name__ == '__main__':
 
     x = Parser('input_file_format.txt')
     nodes, elements = x.get_nodes_elements()
-    #print(nodes)
-    #print(elements)
+    print(nodes)
+    print(elements)
 
-    # print("---nodes")
-    # for key, value in nodes.items():
-    #     print(key, value.label)
-    #
-    # print("---elements")
-    # for key, value in elements.items():
-    #     print(value.node1.label)
-    #     print(value.node2.label)
-    #     print(value.node_labels)
-    #
-    # print(x.node_coordinate_table)
+    print("---nodes")
+    for key, value in nodes.items():
+        print(key, value.get_point())
+
+    print("---elements")
+    for key, value in elements.items():
+        print(value.node1.label)
+        print(value.node2.label)
+        print(value.node_labels)
+
+    print(x.node_coordinate_table)
 
     truss = Truss2D(nodes, elements)
     truss.get_dofs()
     print(truss.dof_dict_node)
     print(truss.dof_dict_element)
+
+    print("----GSMS")
+    for key, value in truss.element_dict.items():
+        #print(value.get_length())
+        #print(value.get_local_stiffness_matrix())
+        print(value.get_global_stiffness_matrix())
+
+    print("----MSM")
+    print(truss.get_master_stiffness_matrix())
