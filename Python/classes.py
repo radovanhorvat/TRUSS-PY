@@ -90,16 +90,22 @@ class Truss2D:
         self.NDOF = 2*self.number_of_nodes
         self.dof_dict_node = {}
         self.dof_dict_element = {}
+        self.dof_list_supports = []
 
     def get_dofs(self):
         """
 
-        :return: populates self.dof_dict_node, self.dof_dict_element
+        :return: populates self.dof_dict_node, self.dof_dict_element, self.dof_list_supports
                  dicts with dof labels
         """
         i = 0
         for node_label, node in self.node_dict.items():
-            self.dof_dict_node[node_label] = (2*i, 1 + 2*i)
+            dof_x, dof_y = 2*i, 2*i + 1
+            self.dof_dict_node[node_label] = (dof_x, dof_y)
+            if node.ux == 1:
+                self.dof_list_supports.append(dof_x)
+            if node.uy == 1:
+                self.dof_list_supports.append(dof_y)
             i += 1
         for element_label, element in self.element_dict.items():
             node1_label = element.node_labels[0]
@@ -130,6 +136,30 @@ class Parser:
         self.filename = filename
         self.node_coordinate_table = {}
 
+    def read_block(self, block_start_name, block_end_name):
+        """
+
+        :param block_start_name: string - start name of block
+        :param block_end_name: string - end name of block
+        :return: list of entries between block_start_name
+                 and block_end_name
+        """
+        block_content = []
+        with open(self.filename, 'r') as csvfile:
+            data = csv.reader(csvfile, delimiter=',')
+            block_found = False
+            for row in data:
+                if row == [block_start_name]:
+                    block_found = True
+                    continue
+                if block_found == True:
+                    if row != [block_end_name]:
+                        float_row = [float(x) for x in row]
+                        block_content.append(float_row)
+                    else:
+                        break
+        return block_content
+
     def get_nodes_elements(self):
         """
 
@@ -138,21 +168,11 @@ class Parser:
         node_dict - {node_label : Node2D object}
         element_dict - {element_label : Element2D object}
         """
-        block_start_name = 'ELEMENTS'
-        block_end_name = 'END ELEMENTS'
         element_dict = {}
         node_dict = {}
         start_element_label = 1
         element_label_step = 1
-        with open(self.filename, 'r') as csvfile:
-            data = csv.reader(csvfile, delimiter=',')
-            element_data = []
-            for row in data:
-                if block_start_name in row[0]:
-                    continue
-                if block_end_name not in row[0]:
-                    float_row = [float(x) for x in row]
-                    element_data.append(float_row)
+        element_data = self.read_block('ELEMENTS', 'END ELEMENTS')
         for i, data in enumerate(element_data):
             element_label = start_element_label + i*element_label_step
             node1_x, node1_y = data[0], data[1]
@@ -177,35 +197,33 @@ class Parser:
             element_dict[element_label] = element
         return node_dict, element_dict
 
+    def get_supports(self, node_dict):
+        """
+
+        :return: updates node_dict with support info, i.e. updates
+                 values of ux, uy in every node object with support
+        """
+        support_data = self.read_block('SUPPORTS', 'END SUPPORTS')
+        for item in support_data:
+            x, y = item[0], item[1]
+            ux, uy = int(item[2]), int(item[3])
+            node_label = self.node_coordinate_table[(x, y)]
+            node_dict[node_label].ux = ux
+            node_dict[node_label].uy = uy
+
+    def get_all(self):
+        nodes, elements = self.get_nodes_elements()
+        self.get_supports(nodes)
+        return nodes, elements
+
 if __name__ == '__main__':
 
     x = Parser('input_file_format.txt')
-    nodes, elements = x.get_nodes_elements()
+    nodes, elements = x.get_all()
     print(nodes)
     print(elements)
 
-    print("---nodes")
-    for key, value in nodes.items():
-        print(key, value.get_point())
-
-    print("---elements")
-    for key, value in elements.items():
-        print(value.node1.label)
-        print(value.node2.label)
-        print(value.node_labels)
-
-    print(x.node_coordinate_table)
-
     truss = Truss2D(nodes, elements)
     truss.get_dofs()
-    print(truss.dof_dict_node)
-    print(truss.dof_dict_element)
-
-    print("----GSMS")
-    for key, value in truss.element_dict.items():
-        #print(value.get_length())
-        #print(value.get_local_stiffness_matrix())
-        print(value.get_global_stiffness_matrix())
-
     print("----MSM")
     print(truss.get_master_stiffness_matrix())
