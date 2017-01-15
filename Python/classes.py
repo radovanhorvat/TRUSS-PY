@@ -23,7 +23,7 @@ class Node2D:
 
 class Element2D:
 
-    def __init__(self, node1, node2, E, A):
+    def __init__(self, node1, node2, E, A, label=None):
         """
 
         :param node1: Node2D object
@@ -36,6 +36,7 @@ class Element2D:
         self.node2 = node2
         self.E = E
         self.A = A
+        self.label = label
         # dependent attributes
         self.node_labels = (self.node1.label, self.node2.label)
 
@@ -91,8 +92,26 @@ class Truss2D:
         self.dof_dict_node = {}
         self.dof_dict_element = {}
         self.dof_list_supports = []
+        # function calls upon instantiation
+        self.get_dof_labels()
 
-    def get_dofs(self):
+    def print_info(self):
+        print("=== STRUCTURE INFO")
+        print("--- GENERAL")
+        print("DOF: {}".format(self.NDOF))
+        print("# nodes: {}".format(self.number_of_nodes))
+        print("# elements: {}".format(self.number_of_elements))
+        print(" --- NODES")
+        print("label  x   y   ux   uy")
+        for label, node in self.node_dict.items():
+            print("{}   {}   {}   {}   {}".format(node.label, node.x, node.y, node.ux, node.uy))
+        print("--- ELEMENTS")
+        print("label  nodes  L   E   A")
+        for label, element in self.element_dict.items():
+            print("{}   {}   {}   {}   {}".format(element.label, element.node_labels, element.get_length(),
+                                                  element.E, element.A))
+
+    def get_dof_labels(self):
         """
 
         :return: populates self.dof_dict_node, self.dof_dict_element, self.dof_list_supports
@@ -172,28 +191,33 @@ class Parser:
         node_dict = {}
         start_element_label = 1
         element_label_step = 1
+        start_node_label = 1
+        node_label_step = 1
         element_data = self.read_block('ELEMENTS', 'END ELEMENTS')
+        node_labels = [start_node_label]
         for i, data in enumerate(element_data):
             element_label = start_element_label + i*element_label_step
             node1_x, node1_y = data[0], data[1]
             node2_x, node2_y = data[2], data[3]
-            node1_label = 2*i + 1
-            node2_label = 2*i + 2
-            node1 = Node2D(node1_x, node1_y, 0, 0, node1_label)
-            node2 = Node2D(node2_x, node2_y, 0, 0, node2_label)
             try:
                 node1 = node_dict[self.node_coordinate_table[(node1_x, node1_y)]]
             except KeyError:
+                node1_label = max(node_labels)
+                node_labels.append(node1_label)
                 self.node_coordinate_table[(node1_x, node1_y)] = node1_label
+                node1 = Node2D(node1_x, node1_y, 0, 0, node1_label)
                 node_dict[node1_label] = node1
             try:
                 node2 = node_dict[self.node_coordinate_table[(node2_x, node2_y)]]
             except KeyError:
+                node2_label = max(node_labels) + node_label_step
+                node_labels.append(node2_label)
                 self.node_coordinate_table[(node2_x, node2_y)] = node2_label
+                node2 = Node2D(node2_x, node2_y, 0, 0, node2_label)
                 node_dict[node2_label] = node2
             E = data[4]
             A = data[5]
-            element = Element2D(node1, node2, E, A)
+            element = Element2D(node1, node2, E, A, element_label)
             element_dict[element_label] = element
         return node_dict, element_dict
 
@@ -218,12 +242,10 @@ class Parser:
 
 if __name__ == '__main__':
 
-    x = Parser('input_file_format.txt')
-    nodes, elements = x.get_all()
-    print(nodes)
-    print(elements)
-
+    data = Parser('input_file_format.txt')
+    nodes, elements = data.get_all()
     truss = Truss2D(nodes, elements)
-    truss.get_dofs()
-    print("----MSM")
-    print(truss.get_master_stiffness_matrix())
+    truss.print_info()
+
+    #print("----MSM")
+    #print(truss.get_master_stiffness_matrix())
