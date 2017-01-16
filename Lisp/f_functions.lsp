@@ -1,3 +1,4 @@
+; ENVIRONMENT VARIABLE GETTER AND SETTER
 (defun env_get ( / old_layer old_osmode old_orthomode old_cmdecho old_attdia old_insunits old_dimzin output_list)
 	; gets environment variables and returns
 	; a list containing them
@@ -22,6 +23,7 @@
 	(setvar "dimzin" (nth 6 input_list))
 )
 
+; SELECTION SET HANDLING
 (defun apply_selset (sel / ed old_angle new_angle i entname len)
 	; sel is a selection set
 	(setq len (sslength sel))
@@ -45,6 +47,25 @@
 	(entmod ed)  
 )
 
+; SUPPORT BLOCK INSERTION
+(defun draw_support (pt support_type / bs)
+	; set block scale
+	(setq bs 1)
+
+	; block insertion
+	(if (= support_type 1)
+		(command-s "._INSERT" "TP_block_support_xy" pt bs bs 0)
+	)
+	(if (= support_type 2)
+		(command-s "._INSERT" "TP_block_support_y" pt bs bs 0)
+	)
+	(if (= support_type 3)
+		(command-s "._INSERT" "TP_block_support_x" pt bs bs 0)
+	)
+	
+)
+
+; ERROR HANDLING
 (defun *error* (errmsg)
 	(env_set old_env_vars)
 )
