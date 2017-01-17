@@ -97,15 +97,15 @@ class Truss2D:
 
     def print_info(self):
         print("=== STRUCTURE INFO")
-        print("--- GENERAL")
+        print("\n--- GENERAL")
         print("DOF: {}".format(self.NDOF))
         print("# nodes: {}".format(self.number_of_nodes))
         print("# elements: {}".format(self.number_of_elements))
-        print(" --- NODES")
+        print("\n--- NODES")
         print("label  x   y   ux   uy")
         for label, node in self.node_dict.items():
             print("{}   {}   {}   {}   {}".format(node.label, node.x, node.y, node.ux, node.uy))
-        print("--- ELEMENTS")
+        print("\n--- ELEMENTS")
         print("label  nodes  L   E   A")
         for label, element in self.element_dict.items():
             print("{}   {}   {}   {}   {}".format(element.label, element.node_labels, element.get_length(),
@@ -242,10 +242,4 @@ class Parser:
 
 if __name__ == '__main__':
 
-    data = Parser('input_file_format.txt')
-    nodes, elements = data.get_all()
-    truss = Truss2D(nodes, elements)
-    truss.print_info()
-
-    #print("----MSM")
-    #print(truss.get_master_stiffness_matrix())
+    pass
