@@ -6,7 +6,7 @@ def test(filename):
     nodes, elements = data.get_all()
     truss = classes.Truss2D(nodes, elements)
     truss.print_info()
-    input()
+    input("\nPress ENTER to exit")
 
 if __name__ == '__main__':
 

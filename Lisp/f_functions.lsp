@@ -65,6 +65,24 @@
 	
 )
 
+; LOAD BLOCK INSERTION
+(defun draw_point_load (pt load_value load_type / load_value_str bs)
+
+	; rounding off final elevation value
+	(setvar "dimzin" 0)
+	(setq load_value_str (rtos load_value 2 3))
+
+	; get block scale
+	(setq bs 1)
+
+	; block insertion
+	(if (= load_type 1)
+		(command-s "._INSERT" "TP_block_load_x" pt bs bs 0 load_value_str)
+	)
+
+	
+)
+
 ; ERROR HANDLING
 (defun *error* (errmsg)
 	(env_set old_env_vars)

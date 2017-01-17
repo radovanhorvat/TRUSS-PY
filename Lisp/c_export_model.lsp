@@ -3,14 +3,17 @@
 
 (defun c:TP_export_model( / selection counter entitydata entname layer_name pt_start pt_end E A
 							x1 y1 x2 y2 element_list support_list data_bin ins_pt f filename
-							element_data support_data support_type support_string my_command)
-
-
+							element_data support_data support_type support_string my_command
+							module_path old_env_vars)
+	
+	(setq old_env_vars (env_get))
+	(setvar "cmdecho" 0)
+														
 	(setq element_list (list))
 	(setq support_list (list))
 	(setq filename (strcat (getvar "dwgprefix") (getvar "dwgname")))
 	(setq filename (vl-string-trim ".dwg" filename))
-	(setq filename (strcat filename ".tpy"))
+	(setq filename (strcat filename ".tpy"))	
 	
 	(setq selection (ssget '((-4 . "<or")							
 							(0 . "LINE")(8 . "TRUSSPY_elements")
@@ -60,7 +63,6 @@
 	 )	
 
 
-	;(setq filename "E:/Python_Scripts/dsm3_output/output_file.txt")
 	(setq f (open filename "w"))
 	
 	; write elements
@@ -108,10 +110,12 @@
 	
 	(close f)	 
 
-	(setq my_command (strcat "python E:/Python_Scripts/moje/dsm3/Python/main.py " filename))
-	(princ my_command)
+	(setq filename (strcat "\"" filename "\""))
+	(setq module_path "\"E:/Python_Scripts/moje/dsm3/Python/main.py\"")
+	(setq my_command (strcat "python " module_path " " filename))
 	(command "._shell" my_command)
 
+	(env_set old_env_vars)
 	(princ)
 	
 )
