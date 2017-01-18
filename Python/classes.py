@@ -76,7 +76,7 @@ class Element2D:
 
 class Truss2D:
 
-    def __init__(self, node_dict, element_dict):
+    def __init__(self, node_dict, element_dict, load_dict):
         """
 
         :param node_dict: dictionary - {node_label : Node2D object}
@@ -85,12 +85,14 @@ class Truss2D:
         # independent attributes
         self.node_dict = node_dict
         self.element_dict = element_dict
+        self.load_dict = load_dict
         # dependent attributes
         self.number_of_nodes = len(self.node_dict)
         self.number_of_elements = len(self.element_dict)
         self.NDOF = 2*self.number_of_nodes
         self.dof_dict_node = {}
         self.dof_dict_element = {}
+        self.dof_dict_loads = {}
         self.dof_list_supports = []
         # function calls upon instantiation
         self.get_dof_labels()
@@ -110,12 +112,16 @@ class Truss2D:
         for label, element in self.element_dict.items():
             print("{}   {}   {}   {}   {}".format(element.label, element.node_labels, element.get_length(),
                                                   element.E, element.A))
+        print("\n--- LOADS")
+        print("node  Px   Py")
+        for node_label, load in self.load_dict.items():
+            print("{}   {}   {}".format(node_label, load[0], load[1]))
 
     def get_dof_labels(self):
         """
 
         :return: populates self.dof_dict_node, self.dof_dict_element, self.dof_list_supports
-                 dicts with dof labels
+                 and self.dof_dict_loads dicts with dof labels
         """
         i = 0
         for node_label, node in self.node_dict.items():
@@ -130,6 +136,13 @@ class Truss2D:
             node1_label = element.node_labels[0]
             node2_label = element.node_labels[1]
             self.dof_dict_element[element_label] = self.dof_dict_node[node1_label] + self.dof_dict_node[node2_label]
+        for node_label, load in self.load_dict.items():
+            Px, Py = load[0], load[1]
+            dof_x, dof_y = self.dof_dict_node[node_label]
+            if Px != 0:
+                self.dof_dict_loads[dof_x] = Px
+            if Py != 0:
+                self.dof_dict_loads[dof_y] = Py
 
     def get_master_stiffness_matrix(self):
         """
@@ -143,6 +156,12 @@ class Truss2D:
             for i in range(4):
                 for j in range(4):
                     M[dofs[i]][dofs[j]] += m[i][j]
+        for dof in self.dof_list_supports:
+            M[dof, :] = 0
+            M[:, dof] = 0
+        for i in range(self.NDOF):
+            if M[i][i] == 0:
+                M[i][i] = 1
         return M
 
 class Parser:
@@ -235,10 +254,25 @@ class Parser:
             node_dict[node_label].ux = ux
             node_dict[node_label].uy = uy
 
+    def get_loads(self):
+        """
+
+        :return: load_dict as {node_label: (Px, Py)}
+        """
+        load_dict = {}
+        load_data = self.read_block('LOADS', 'END LOADS')
+        for item in load_data:
+            x, y = item[0], item[1]
+            Px, Py = item[2], item[3]
+            node_label = self.node_coordinate_table[(x, y)]
+            load_dict[node_label] = (Px, Py)
+        return load_dict
+
     def get_all(self):
         nodes, elements = self.get_nodes_elements()
         self.get_supports(nodes)
-        return nodes, elements
+        loads = self.get_loads()
+        return nodes, elements, loads
 
 if __name__ == '__main__':
 

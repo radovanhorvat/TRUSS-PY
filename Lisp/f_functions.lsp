@@ -79,8 +79,19 @@
 	(if (= load_type 1)
 		(command-s "._INSERT" "TP_block_load_x" pt bs bs 0 load_value_str)
 	)
-
+	(if (= load_type 2)
+		(command-s "._INSERT" "TP_block_load_y" pt bs bs 0 load_value_str)
+	)
 	
+	
+)
+
+;;;;;
+(defun vl-getattributevalue ( blk tag )
+    (setq tag (strcase tag))
+    (vl-some '(lambda ( att ) (if (= tag (strcase (vla-get-tagstring att))) (vla-get-textstring att)))
+        (vlax-invoke blk 'getattributes)
+    )
 )
 
 ; ERROR HANDLING

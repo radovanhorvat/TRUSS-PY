@@ -4,13 +4,15 @@
 (defun c:TP_export_model( / selection counter entitydata entname layer_name pt_start pt_end E A
 							x1 y1 x2 y2 element_list support_list data_bin ins_pt f filename
 							element_data support_data support_type support_string my_command
-							module_path old_env_vars)
+							module_path old_env_vars load_list block_name vl_obj att_value)
 	
 	(setq old_env_vars (env_get))
 	(setvar "cmdecho" 0)
 														
 	(setq element_list (list))
 	(setq support_list (list))
+	(setq load_list (list))
+	
 	(setq filename (strcat (getvar "dwgprefix") (getvar "dwgname")))
 	(setq filename (vl-string-trim ".dwg" filename))
 	(setq filename (strcat filename ".tpy"))	
@@ -19,6 +21,9 @@
 							(0 . "LINE")(8 . "TRUSSPY_elements")
 							(-4 . "<and")
 							(8 . "TRUSSPY_supports")
+							(-4 . "and>")
+							(-4 . "<and")
+							(8 . "TRUSSPY_loads")
 							(-4 . "and>")
 							(-4 . "or>")
 							)
@@ -57,11 +62,33 @@
 				(setq support_list (cons data_bin support_list))
 			)
 		)
+
+		(if (= layer_name "TRUSSPY_loads")
+			(progn
+				(setq ins_pt (cdr (assoc 10 entitydata)))
+				(setq block_name (cdr (assoc 2 entitydata)))				
+				(setq vl_obj (vlax-ename->vla-object entname))				
+				(setq x1 (car ins_pt))
+				(setq y1 (cadr ins_pt))
+				(if (= block_name "TP_block_load_x")
+					(progn
+						(setq att_value (vl-getattributevalue vl_obj "PX"))
+						(setq data_bin (list x1 y1 (atof att_value) 0))
+					)
+				)
+				(if (= block_name "TP_block_load_y")
+					(progn
+						(setq att_value (vl-getattributevalue vl_obj "PY"))
+						(setq data_bin (list x1 y1 0 (atof att_value)))
+					)
+				)			
+				(setq load_list (cons data_bin load_list))
+			)
+		)
 		
 		(setq counter (+ 1 counter))
 			
 	 )	
-
 
 	(setq f (open filename "w"))
 	
@@ -107,6 +134,23 @@
 		(setq counter (+ 1 counter))
 	)	
 	(write-line "END SUPPORTS" f)
+	(write-line "" f)
+
+	; write loads
+	(setq counter 0)
+	(write-line "LOADS" f)
+	(repeat (length load_list)
+		(setq load_data (nth counter load_list))
+		(setq x1 (nth 0 load_data))
+		(setq y1 (nth 1 load_data))
+		(setq px (nth 2 load_data))
+		(setq py (nth 3 load_data))		
+
+		(write-line (strcat (rtos x1) "," (rtos y1) "," (rtos px) "," (rtos py)) f)
+		
+		(setq counter (+ 1 counter))
+	)	
+	(write-line "END LOADS" f)
 	
 	(close f)	 
 
