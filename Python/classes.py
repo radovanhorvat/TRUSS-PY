@@ -265,7 +265,10 @@ class Parser:
             x, y = item[0], item[1]
             Px, Py = item[2], item[3]
             node_label = self.node_coordinate_table[(x, y)]
-            load_dict[node_label] = (Px, Py)
+            try:
+                load_dict[node_label] += np.array([Px, Py])
+            except KeyError:
+                load_dict[node_label] = np.array([Px, Py])
         return load_dict
 
     def get_all(self):
