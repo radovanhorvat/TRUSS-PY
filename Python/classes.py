@@ -1,6 +1,7 @@
 import numpy as np
 import csv
 from math import hypot
+import copy
 
 class Node2D:
 
@@ -73,6 +74,18 @@ class Element2D:
                            [-k*c**2, -k*s*c, k*c**2, k*s*c],
                            [-k*s*c, -k*s**2, k*s*c, k*s**2]])
         return matrix
+
+    def get_transformation_matrix(self):
+        L = self.get_length()
+        x1, y1 = self.node1.get_point()
+        x2, y2 = self.node2.get_point()
+        dx, dy = x2 - x1, y2 - y1
+        c, s = dx/L, dy/L
+        T = np.array([[c, s, 0, 0],
+                      [-s, c, 0, 0],
+                      [0, 0, c, s],
+                      [0, 0, -s, c]])
+        return T
 
 class Truss2D:
 
@@ -157,13 +170,23 @@ class Truss2D:
             for i in range(4):
                 for j in range(4):
                     M[dofs[i]][dofs[j]] += m[i][j]
-        for dof in self.dof_list_supports:
-            M[dof, :] = 0
-            M[:, dof] = 0
-        for i in range(self.NDOF):
-            if M[i][i] == 0:
-                M[i][i] = 1
         return M
+
+    def modify_master_stiffness_matrix(self, M):
+        """
+
+        :param M: master stiffnes matrix
+        :return: modified master stiffness matrix to account
+                 for boundary conditions
+        """
+        M_mod = copy.copy(M)
+        for dof in self.dof_list_supports:
+            M_mod[dof, :] = 0
+            M_mod[:, dof] = 0
+        for i in range(self.NDOF):
+            if M_mod[i][i] == 0:
+                M_mod[i][i] = 1
+        return M_mod
 
     def get_load_vector(self):
         """
@@ -174,9 +197,19 @@ class Truss2D:
         F = np.zeros(self.NDOF)
         for dof, load in self.dof_dict_loads.items():
             F[dof] += load
-        for dof in self.dof_list_supports:
-            F[dof] = 0
         return F
+
+    def modify_load_vector(self, F):
+        """
+
+        :param F: global load vector
+        :return: modified global load vector to account
+                 for boundary conditions
+        """
+        F_mod = copy.copy(F)
+        for dof in self.dof_list_supports:
+            F_mod[dof] = 0
+        return F_mod
 
 class Solver:
 
@@ -185,30 +218,48 @@ class Solver:
 
         :param truss: Truss2D object
         """
+        # initialization of vectors and matrices
         self.truss = truss
         self.M = self.truss.get_master_stiffness_matrix()
+        self.M_mod = self.truss.modify_master_stiffness_matrix(self.M)
         self.F = self.truss.get_load_vector()
+        self.F_mod = self.truss.modify_load_vector(self.F)
         # solution data
         self.u = None
         self.R = None
+        self.forces = {}
+        self.stresses = {}
 
     def solve(self):
         """
 
         :return: displacement vector u
         """
-        self.u = np.linalg.solve(self.M, self.F)
+        self.u = np.linalg.solve(self.M_mod, self.F_mod)
 
     def get_reactions(self):
         """
 
         :return: reaction vector R
         """
-        pass
-        # F = np.zeros(self.truss.NDOF)
-        # for dof, load in self.truss.dof_dict_loads.items():
-        #     F[dof] += load
-        # self.R = np.dot(self.M, self.u) - F
+        self.R = np.dot(self.M, self.u) - self.F
+
+    def get_forces_stresses(self):
+        """
+
+        :return:
+        """
+        for label, element in self.truss.element_dict.items():
+            T = element.get_transformation_matrix()
+            dofs = self.truss.dof_dict_element[label]
+            u_global = np.take(self.u, dofs)
+            u_local = np.dot(T, u_global)
+            du = u_local[2] - u_local[0]
+            k = element.get_stiffness()
+            F = k*du
+            s = F/element.A
+            self.forces[label] = F
+            self.stresses[label] = s
 
 class Parser:
 
