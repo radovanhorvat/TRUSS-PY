@@ -6,6 +6,12 @@ def test(filename):
     nodes, elements, loads = data.get_all()
     truss = classes.Truss2D(nodes, elements, loads)
     truss.print_info()
+    print("\n--- solution")
+    sol = classes.Solver(truss)
+    sol.solve()
+    print(sol.u)
+    #print(sol.R)
+    #print(truss.dof_dict_node)
     input("\nPress ENTER to exit")
 
 if __name__ == '__main__':
@@ -18,4 +24,9 @@ if __name__ == '__main__':
     # nodes, elements, loads = data.get_all()
     # truss = classes.Truss2D(nodes, elements, loads)
     # truss.print_info()
-    # M = truss.get_master_stiffness_matrix()
+    #
+    # print("\n--- solution")
+    # sol = classes.Solver(truss)
+    # u = sol.solve()
+    # print(u)
+    # print(truss.dof_dict_node)

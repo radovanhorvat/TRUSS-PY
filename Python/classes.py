@@ -147,7 +147,8 @@ class Truss2D:
     def get_master_stiffness_matrix(self):
         """
 
-        :return: truss master stiffness matrix M
+        :return: truss master stiffness matrix M modified for
+                 boundary conditions
         """
         M =  np.zeros((self.NDOF, self.NDOF))
         for label, element in self.element_dict.items():
@@ -163,6 +164,51 @@ class Truss2D:
             if M[i][i] == 0:
                 M[i][i] = 1
         return M
+
+    def get_load_vector(self):
+        """
+
+        :return: global load vector modified for
+                 boundary conditions
+        """
+        F = np.zeros(self.NDOF)
+        for dof, load in self.dof_dict_loads.items():
+            F[dof] += load
+        for dof in self.dof_list_supports:
+            F[dof] = 0
+        return F
+
+class Solver:
+
+    def __init__(self, truss):
+        """
+
+        :param truss: Truss2D object
+        """
+        self.truss = truss
+        self.M = self.truss.get_master_stiffness_matrix()
+        self.F = self.truss.get_load_vector()
+        # solution data
+        self.u = None
+        self.R = None
+
+    def solve(self):
+        """
+
+        :return: displacement vector u
+        """
+        self.u = np.linalg.solve(self.M, self.F)
+
+    def get_reactions(self):
+        """
+
+        :return: reaction vector R
+        """
+        pass
+        # F = np.zeros(self.truss.NDOF)
+        # for dof, load in self.truss.dof_dict_loads.items():
+        #     F[dof] += load
+        # self.R = np.dot(self.M, self.u) - F
 
 class Parser:
 
