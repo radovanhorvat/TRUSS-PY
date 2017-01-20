@@ -1,4 +1,5 @@
 import classes
+import graphics
 import sys
 
 def test(filename):
@@ -18,6 +19,10 @@ def test(filename):
     print("\n--- forces")
     print(sol.forces)
     #print(truss.dof_dict_node)
+
+    g = graphics.Graphics(sol, data.folder)
+    g.output_acad_geometry()
+
     input("\nPress ENTER to exit")
 
 if __name__ == '__main__':
@@ -35,10 +40,16 @@ if __name__ == '__main__':
     # sol.solve()
     # sol.get_reactions()
     # sol.get_forces_stresses()
-    # print("--- displacements")
+    # print("\n--- displacements")
     # print(sol.u)
-    # print("--- reactions")
+    # print("\n--- reactions")
     # print(sol.R)
-    # print("--- forces")
+    # print("\n--- forces")
     # print(sol.forces)
     # #print(truss.dof_dict_node)
+    #
+    # print(data.folder)
+    # g = graphics.Graphics(sol, data.folder)
+    # g.output_acad_geometry()
+    #
+    # input("\nPress ENTER to exit")

@@ -269,6 +269,7 @@ class Parser:
         :param filename: file from which to parse truss data
         """
         self.filename = filename
+        self.folder = '\\'.join(filename.split('\\')[0:-1])
         self.node_coordinate_table = {}
 
     def read_block(self, block_start_name, block_end_name):
