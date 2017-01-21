@@ -130,6 +130,14 @@ class Truss2D:
         for node_label, load in self.load_dict.items():
             print("{}   {}   {}".format(node_label, load[0], load[1]))
 
+    def print_info_short(self):
+        print("=== STRUCTURE INFO")
+        print("\n# DOF: {}".format(self.NDOF))
+        print("# nodes: {}".format(self.number_of_nodes))
+        print("# elements: {}".format(self.number_of_elements))
+        print("# supports: {}".format(len(self.dof_list_supports)))
+        print("# loads: {}".format(len(self.dof_dict_loads)))
+
     def get_dof_labels(self):
         """
 

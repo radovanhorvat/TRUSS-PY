@@ -8,7 +8,7 @@
 	(setvar "osmode" 0)
 	(setvar "cmdecho" 0)
 
-	(setq scale 10000)
+	;(setq scale 10000)
 	(setq ln_undef "TRUSSPY_undeformed")
 	(setq ln_def "TRUSSPY_deformed")
 	
@@ -29,12 +29,17 @@
 	(repeat (length force_data)		
 		(setq data_line (nth counter force_data))
 		(if (= counter 0)
+			(setq scale (nth 0 data_line))
+		)
+		(if (= counter 1)
 			(progn
 				(setq xc (nth 0 data_line))
 				(setq yc (nth 1 data_line))
 				(setq dx (- ins_x xc))
 				(setq dy (- ins_y yc))	
 			)
+		)
+		(if (> counter 1)
 			(progn
 				(setq x1 (nth 0 data_line))				
 				(setq y1 (nth 1 data_line))				
@@ -85,6 +90,7 @@
 				
 			)
 		)
+		
 		
 		(setq counter (+ 1 counter))
 	)

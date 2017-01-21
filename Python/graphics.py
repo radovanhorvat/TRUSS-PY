@@ -12,6 +12,25 @@ class Graphics:
         self.forces_filename = os.path.splitext(filename)[0] + '.frc'
         self.displacements_filename = os.path.splitext(filename)[0] + '.dpl'
 
+    def get_displacement_scale(self):
+        """
+
+        :return: scale factor for drawing displacement diagram
+        """
+        k = 0.025
+        nodes = self.solution.truss.node_dict
+        x_coordinates = [node.x for label, node in nodes.items()]
+        y_coordinates = [node.y for label, node in nodes.items()]
+        Lx = abs(max(x_coordinates) - min(x_coordinates))
+        Ly = abs(max(y_coordinates) - min(y_coordinates))
+        L = max(Lx, Ly)
+        u_max = max([abs(item) for item in self.solution.u])
+        if u_max == 0:
+            scale = 1
+        else:
+            scale = round(L*k/u_max, 0)
+        return scale
+
     def output_forces(self):
         """
 
@@ -72,9 +91,14 @@ class Graphics:
             line_to_write = str(node1x) + ',' + str(node1y) + ',' + str(u1x) + ',' + str(u1y) + ',' + \
                             str(node2x) + ',' + str(node2y) + ',' + str(u2x) + ',' + str(u2y) + '\n'
             f.write(line_to_write)
+
         cx = centroid[0]
         cy = centroid[1]
         cz = centroid[2]
-        line_to_write = str(cx) + ',' + str(cy) + ',' + str(cz)
+        line_to_write = str(cx) + ',' + str(cy) + ',' + str(cz) + '\n'
+        f.write(line_to_write)
+
+        scale = self.get_displacement_scale()
+        line_to_write = str(scale)
         f.write(line_to_write)
         f.close()
