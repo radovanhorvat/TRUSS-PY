@@ -211,6 +211,20 @@ class Truss2D:
             F_mod[dof] = 0
         return F_mod
 
+    def get_centroid(self):
+        """
+
+        :return: centroid of nodes as tuple (xc, yc, 0)
+        """
+        xc, yc = 0, 0
+        for label, node in self.node_dict.items():
+            x, y = node.get_point()
+            xc += x
+            yc += y
+        xc = xc/self.number_of_nodes
+        yc = yc/self.number_of_nodes
+        return xc, yc, 0
+
 class Solver:
 
     def __init__(self, truss):
@@ -254,7 +268,7 @@ class Solver:
             dofs = self.truss.dof_dict_element[label]
             u_global = np.take(self.u, dofs)
             u_local = np.dot(T, u_global)
-            du = u_local[2] - u_local[0]
+            du = u_local[0] - u_local[2]
             k = element.get_stiffness()
             F = k*du
             s = F/element.A
@@ -269,7 +283,6 @@ class Parser:
         :param filename: file from which to parse truss data
         """
         self.filename = filename
-        self.folder = '\\'.join(filename.split('\\')[0:-1])
         self.node_coordinate_table = {}
 
     def read_block(self, block_start_name, block_end_name):
@@ -308,7 +321,7 @@ class Parser:
         node_dict = {}
         start_element_label = 1
         element_label_step = 1
-        start_node_label = 1
+        start_node_label = 0
         node_label_step = 1
         element_data = self.read_block('ELEMENTS', 'END ELEMENTS')
         node_labels = [start_node_label]
@@ -319,7 +332,7 @@ class Parser:
             try:
                 node1 = node_dict[self.node_coordinate_table[(node1_x, node1_y)]]
             except KeyError:
-                node1_label = max(node_labels)
+                node1_label = max(node_labels) + 1
                 node_labels.append(node1_label)
                 self.node_coordinate_table[(node1_x, node1_y)] = node1_label
                 node1 = Node2D(node1_x, node1_y, 0, 0, node1_label)

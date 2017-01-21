@@ -86,12 +86,78 @@
 	
 )
 
-;;;;;
+; GET BLOCK ATTRIBUTE VALUE - LEE MAC FUNCTION
 (defun vl-getattributevalue ( blk tag )
     (setq tag (strcase tag))
     (vl-some '(lambda ( att ) (if (= tag (strcase (vla-get-tagstring att))) (vla-get-textstring att)))
         (vlax-invoke blk 'getattributes)
     )
+)
+
+; CSV FILE PARSING
+(defun parse_nums (st / a k lst bad_datatype)
+	; parses comma separated string into a 
+	; list of numbers
+	(setq bad_datatype 0)
+	(setq k 1)
+	(setq a "")
+	(setq lst nil)
+	(repeat (strlen st)
+		(if (= (substr st k 1) ",")
+			(progn
+				(if (/= T (numberp (read a)))
+					(setq bad_datatype 1)
+				)
+				(setq lst (append lst (list (atof a))))
+				(setq a "")
+			)
+			(setq a (strcat a (substr st k 1)))
+		)
+		(setq k (+ k 1))
+	)
+	(if (/= T (numberp (read a)))
+		(setq bad_datatype 1)
+	)
+	(setq lst (append lst (list (atof a))))
+	
+	(if (= bad_datatype 1)
+		(setq lst nil)
+		(setq lst lst)
+	)
+)
+
+; READ ELEMENT-FORCE DATA FILE
+(defun read_forces (filename / f aline data_bin status element_force_data)
+
+	;(setq status 1)
+	;(setq filename (getfiled "Odabir ulazne datoteke:" (nth 0 g_data_folder) "txt" 16))
+	(setq f (open filename "r"))
+	(setq element_force_data (list))
+	(while (setq aline (read-line f))
+
+		(if (and (/= (substr aline 1 1) ";") (/= (substr aline 1 1) ""))
+			(progn
+				;(setq aline (read-line f))
+				(setq data_bin (parse_nums aline))
+				(if (/= nil data_bin)
+					(setq element_force_data (cons data_bin element_force_data))
+				)
+			)		
+		)
+	)
+	(close f)
+	; checking for input errors
+	; (if (= g_data_v (list))
+		; (progn
+			; (princ "\nUPOZORENJE - vertikalni parametri nisu definirani\n")
+			; (setq status 0)
+			; ;(exit)
+		; )
+	; )
+
+
+	;(setq status status)
+	(setq element_force_data element_force_data)
 )
 
 ; ERROR HANDLING
