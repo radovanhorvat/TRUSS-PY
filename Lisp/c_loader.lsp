@@ -6,4 +6,5 @@
 (load "c_define_loads")
 (load "c_export_model")
 (load "c_draw_forces")
+(load "c_draw_displacements")
 (princ "OK")

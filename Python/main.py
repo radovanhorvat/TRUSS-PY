@@ -22,6 +22,7 @@ def test(filename):
     print("Generating output ...")
     g = graphics.Graphics(sol, data.filename)
     g.output_forces()
+    g.output_displacements()
     print("DONE")
 
     input("\nPress ENTER to exit")

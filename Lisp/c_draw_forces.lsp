@@ -56,7 +56,7 @@
 				(setq pt1 (list x1 y1 z1))
 				(setq pt2 (list x2 y2 z2))
 				(setq pt_text (list text_x text_y 0))
-				(setq text_str (rtos F))
+				(setq text_str (rtos F 2 2))
 
 				(if (> F 0)
 					(setvar "CLAYER" ln_tension)
