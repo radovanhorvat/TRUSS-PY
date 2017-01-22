@@ -11,6 +11,8 @@ class Graphics:
         self.filename = filename
         self.forces_filename = os.path.splitext(filename)[0] + '.frc'
         self.displacements_filename = os.path.splitext(filename)[0] + '.dpl'
+        self.reactions_filename = os.path.splitext(filename)[0] + '.rct'
+        self.geometry_filename = os.path.splitext(filename)[0] + '.gtr'
 
     def get_displacement_scale(self):
         """
@@ -100,5 +102,71 @@ class Graphics:
 
         scale = self.get_displacement_scale()
         line_to_write = str(scale)
+        f.write(line_to_write)
+        f.close()
+
+    def output_reactions(self):
+        """
+
+        :return: creates a file with reaction data
+                 which is read by AutoLISP command which draws reactions
+
+                 file structure:
+
+                 node1x, node1y, rx, ry
+        """
+        # f = open(self.reactions_filename, "w")
+        # elements = self.solution.truss.element_dict
+        # rdofs = self.solution.truss.dof_list_supports
+        # reactions = -self.solution.R
+        # node_dofs = self.solution.truss.dof_dict_node
+        # centroid = self.solution.truss.get_centroid()
+        # for label, element in elements.items():
+        #     node1x, node1y = element.node1.get_point()
+        #     node2x, node2y = element.node2.get_point()
+        #     node1z = 0.0
+        #     node2z = 0.0
+        #
+        #     node1_dofs, node2_dofs = node_dofs[node1], node_dofs[node2]
+        #     R1 = reactions.take(node1_dofs)
+        #     R2 = reactions.take(node2_dofs)
+        #     R1x, R1y = R1[0], R1[1]
+        #     R2x, R2y = R2[0], R2[1]
+        #
+        #     line_to_write = str(node1x) + ',' + str(node1y) + ',' + str(node1z) + ',' + \
+        #                     str(node2x) + ',' + str(node2y) + ',' + str(node2z) + ',' + \
+        #                      + '\n'
+        #     f.write(line_to_write)
+        # cx = centroid[0]
+        # cy = centroid[1]
+        # cz = centroid[2]
+        # line_to_write = str(cx) + ',' + str(cy) + ',' + str(cz)
+        # f.write(line_to_write)
+        # f.close()
+        pass
+
+    def output_geometry(self):
+        """
+
+        :return: creates file with structure geometry, node and
+                 element labels. file structure:
+
+                 node1x, node1y, node1_label, node2x, node2y, node2_label, element_label
+        """
+        f = open(self.geometry_filename, "w")
+        elements = self.solution.truss.element_dict
+        centroid = self.solution.truss.get_centroid()
+        for label, element in elements.items():
+            node1x, node1y = element.node1.get_point()
+            node2x, node2y = element.node2.get_point()
+            node1_label, node2_label = element.node_labels
+            line_to_write = str(node1x) + ',' + str(node1y) + ',' + str(node1_label) + ',' + \
+                            str(node2x) + ',' + str(node2y) + ',' + str(node2_label) + ',' + \
+                            str(label) + '\n'
+            f.write(line_to_write)
+        cx = centroid[0]
+        cy = centroid[1]
+        cz = centroid[2]
+        line_to_write = str(cx) + ',' + str(cy) + ',' + str(cz)
         f.write(line_to_write)
         f.close()

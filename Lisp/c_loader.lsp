@@ -7,4 +7,5 @@
 (load "c_export_model")
 (load "c_draw_forces")
 (load "c_draw_displacements")
+(load "c_draw_geometry")
 (princ "OK")

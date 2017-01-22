@@ -17,6 +17,7 @@ def test(filename):
     g = graphics.Graphics(sol, data.filename)
     g.output_forces()
     g.output_displacements()
+    g.output_geometry()
     print("DONE")
 
     input("\nPress ENTER to exit")
