@@ -78,7 +78,7 @@ class Graphics:
         """
         f = open(self.displacements_filename, "w")
         elements = self.solution.truss.element_dict
-        u = -self.solution.u
+        u = self.solution.u
         node_dofs = self.solution.truss.dof_dict_node
         centroid = self.solution.truss.get_centroid()
         for label, element in elements.items():
@@ -113,25 +113,24 @@ class Graphics:
 
                  file structure:
 
-                 node1x, node1y, rx, ry
+                 node_x, node_y, R_x, R_y
         """
         # f = open(self.reactions_filename, "w")
-        # elements = self.solution.truss.element_dict
+        # nodes = self.solution.truss.node_dict
         # rdofs = self.solution.truss.dof_list_supports
         # reactions = -self.solution.R
         # node_dofs = self.solution.truss.dof_dict_node
         # centroid = self.solution.truss.get_centroid()
-        # for label, element in elements.items():
-        #     node1x, node1y = element.node1.get_point()
-        #     node2x, node2y = element.node2.get_point()
-        #     node1z = 0.0
-        #     node2z = 0.0
-        #
-        #     node1_dofs, node2_dofs = node_dofs[node1], node_dofs[node2]
-        #     R1 = reactions.take(node1_dofs)
-        #     R2 = reactions.take(node2_dofs)
-        #     R1x, R1y = R1[0], R1[1]
-        #     R2x, R2y = R2[0], R2[1]
+        # Rx = 0
+        # Ry = 0
+        # for label, node in nodes.items():
+        #     if node.ux == 1 or node.uy == 1:
+        #         if node.ux == 1 and node.uy == 0:
+        #             dof_x = node_dofs[label][0]
+        #             Rx = reactions.take(dof_x)
+        #         if node.uy == 1 and node.ux == 0:
+        #             dof_y = node_dofs[label][1]
+        #             Ry = reactions.take(dof_y)
         #
         #     line_to_write = str(node1x) + ',' + str(node1y) + ',' + str(node1z) + ',' + \
         #                     str(node2x) + ',' + str(node2y) + ',' + str(node2z) + ',' + \

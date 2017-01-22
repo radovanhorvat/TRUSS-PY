@@ -276,7 +276,7 @@ class Solver:
             dofs = self.truss.dof_dict_element[label]
             u_global = np.take(self.u, dofs)
             u_local = np.dot(T, u_global)
-            du = u_local[0] - u_local[2]
+            du = u_local[2] - u_local[0]
             k = element.get_stiffness()
             F = k*du
             s = F/element.A
@@ -385,9 +385,9 @@ class Parser:
             Px, Py = item[2], item[3]
             node_label = self.node_coordinate_table[(x, y)]
             try:
-                load_dict[node_label] += np.array([Px, Py])
+                load_dict[node_label] += np.array([Px, -Py])
             except KeyError:
-                load_dict[node_label] = np.array([Px, Py])
+                load_dict[node_label] = np.array([Px, -Py])
         return load_dict
 
     def get_all(self):
