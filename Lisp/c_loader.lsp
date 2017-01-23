@@ -8,4 +8,6 @@
 (load "c_draw_forces")
 (load "c_draw_displacements")
 (load "c_draw_geometry")
+(load "c_draw_reactions")
+(load "c_draw_stresses")
 (princ "OK")

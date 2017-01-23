@@ -15,9 +15,11 @@ def test(filename):
     print("DONE")
     print("Generating output ...", end=" ")
     g = graphics.Graphics(sol, data.filename)
-    g.output_forces()
-    g.output_displacements()
     g.output_geometry()
+    g.output_displacements()
+    g.output_forces()
+    g.output_stresses()
+    g.output_reactions()
     print("DONE")
 
     input("\nPress ENTER to exit")
