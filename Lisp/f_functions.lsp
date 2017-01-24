@@ -23,30 +23,6 @@
 	(setvar "dimzin" (nth 6 input_list))
 )
 
-; SELECTION SET HANDLING
-(defun apply_selset (sel / ed old_angle new_angle i entname len)
-	; sel is a selection set
-	(setq len (sslength sel))
-	(setq i 0)
-	(while (< i len)
-		(setq entname (ssname sel i))
-		(setq ed (entget entname))
-		(ent_mod entname 300 "abcdef")
-		(setq i (+ i 1))
-	)
-)
-
-(defun ent_mod (entity_name code new_value / ed)
-	(setq ed (entget entity_name))
-	(setq ed
-	  (subst (cons code new_value)
-		(assoc code ed)           
-		ed                      
-	  )
-	)
-	(entmod ed)  
-)
-
 ; SUPPORT BLOCK INSERTION
 (defun draw_support (pt support_type / bs)
 	; set block scale
@@ -86,7 +62,9 @@
 	
 )
 
-; GET BLOCK ATTRIBUTE VALUE - LEE MAC FUNCTION
+; GET BLOCK ATTRIBUTE VALUE
+; SOURCE: http://www.lee-mac.com/attributefunctions.html
+
 (defun vl-getattributevalue ( blk tag )
     (setq tag (strcase tag))
     (vl-some '(lambda ( att ) (if (= tag (strcase (vla-get-tagstring att))) (vla-get-textstring att)))
@@ -94,10 +72,10 @@
     )
 )
 
-; CSV FILE PARSING
+; CSV STRING PARSING
 (defun parse_nums (st / a k lst bad_datatype)
-	; parses comma separated string into a 
-	; list of numbers
+	; parses string of comma separated numbers
+	; into list of floats
 	(setq bad_datatype 0)
 	(setq k 1)
 	(setq a "")
@@ -126,38 +104,23 @@
 	)
 )
 
-; READ ELEMENT-FORCE DATA FILE
-(defun read_forces (filename / f aline data_bin status element_force_data)
+; READ CSV FILE
+(defun read_csv (filename / f aline data_line status data)
 
-	;(setq status 1)
-	;(setq filename (getfiled "Odabir ulazne datoteke:" (nth 0 g_data_folder) "txt" 16))
 	(setq f (open filename "r"))
-	(setq element_force_data (list))
+	(setq data (list))
 	(while (setq aline (read-line f))
-
 		(if (and (/= (substr aline 1 1) ";") (/= (substr aline 1 1) ""))
 			(progn
-				;(setq aline (read-line f))
-				(setq data_bin (parse_nums aline))
-				(if (/= nil data_bin)
-					(setq element_force_data (cons data_bin element_force_data))
+				(setq data_line (parse_nums aline))
+				(if (/= nil data_line)
+					(setq data (cons data_line data))
 				)
 			)		
 		)
 	)
 	(close f)
-	; checking for input errors
-	; (if (= g_data_v (list))
-		; (progn
-			; (princ "\nUPOZORENJE - vertikalni parametri nisu definirani\n")
-			; (setq status 0)
-			; ;(exit)
-		; )
-	; )
-
-
-	;(setq status status)
-	(setq element_force_data element_force_data)
+	(setq data data)
 )
 
 ; ERROR HANDLING

@@ -1,12 +1,12 @@
 
-(defun c:TP_define_loads ( / old_env_vars load_layer load_type pt load_value)
+(defun c:TP_define_loads ( / old_env_vars ln_loads load_type pt load_value)
 
 	(setq old_env_vars (env_get))
 	(setvar "cmdecho" 0)
 	(setvar "insunits" 0)
 
-	(setq load_layer "TRUSSPY_loads")
-	(command-s "._LAYER" "M" load_layer "C" "3" "" "")
+	(setq ln_loads "TRUSSPY_loads")
+	(command-s "._LAYER" "M" ln_loads "C" "3" "" "")
 	
 	(setq load_type (getint "Enter load type (1-Px, 2-Py): "))
 	(setq load_value (getreal "\nEnter load value (kN): "))
@@ -19,5 +19,4 @@
 	
 	(princ)
 )
-
 

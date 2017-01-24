@@ -1,14 +1,16 @@
+; localization - ok
 
-(defun c:TP_draw_displacements( / old_env_vars ins_pt force_data filename
+(defun c:TP_draw_displacements( / old_env_vars ins_pt displacement_data filename
 						   xc yc counter data_line x1 y1 z1 x2 y2 z2 F pt1 pt2
 						   dx dy ins_x ins_y text_x text_y pt_text text_str
-						   ln_tension ln_compression ln_zero scale)
+						   ln_tension ln_compression ln_zero scale ln_undef ln_def
+						   dx1 dx2 dy1 dy2 x1_def y1_def x2_def y2_def
+						   pt1_def pt2_def text_str1x text_str1y text_str2x text_str2y)
 
 	(setq old_env_vars (env_get))
 	(setvar "osmode" 0)
 	(setvar "cmdecho" 0)
 
-	;(setq scale 10000)
 	(setq ln_undef "TRUSSPY_undeformed")
 	(setq ln_def "TRUSSPY_deformed")
 	
@@ -19,15 +21,15 @@
 	(setq filename (vl-string-trim ".dwg" filename))
 	(setq filename (strcat filename ".dpl"))	
 	
-	(setq force_data (read_forces filename))
+	(setq displacement_data (read_csv filename))
 	
 	(setq ins_pt (getpoint "\nSpecify diagram insertion point: "))
 	(setq ins_x (car ins_pt))
 	(setq ins_y (cadr ins_pt))
 	
 	(setq counter 0)
-	(repeat (length force_data)		
-		(setq data_line (nth counter force_data))
+	(repeat (length displacement_data)		
+		(setq data_line (nth counter displacement_data))
 		(if (= counter 0)
 			(setq scale (nth 0 data_line))
 		)
@@ -60,16 +62,12 @@
 				(setq x1_def (+ x1 (* dx1 scale)))
 				(setq y1_def (+ y1 (* dy1 scale)))
 				(setq x2_def (+ x2 (* dx2 scale)))
-				(setq y2_def (+ y2 (* dy2 scale)))				
-				
-				;(setq text_x (/ (+ x1 x2) 2))
-				;(setq text_y (/ (+ y1 y2) 2))			
-			
+				(setq y2_def (+ y2 (* dy2 scale)))					
+		
 				(setq pt1 (list x1 y1 z1))
 				(setq pt2 (list x2 y2 z2))
 				(setq pt1_def (list x1_def y1_def z1))
 				(setq pt2_def (list x2_def y2_def z2))
-				;(setq pt_text (list text_x text_y 0))
 				(setq text_str1x (strcat "Ux: " (rtos dx1 1 2)))
 				(setq text_str1y (strcat "Uy: " (rtos dy1 1 2)))
 				(setq text_str2x (strcat "Ux: " (rtos dx2 1 2)))

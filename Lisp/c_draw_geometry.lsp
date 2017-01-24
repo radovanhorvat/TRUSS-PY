@@ -20,7 +20,7 @@
 	(setq filename (vl-string-trim ".dwg" filename))
 	(setq filename (strcat filename ".gtr"))	
 	
-	(setq force_data (read_forces filename))
+	(setq force_data (read_csv filename))
 	
 	(setq ins_pt (getpoint "\nSpecify diagram insertion point: "))
 	(setq ins_x (car ins_pt))

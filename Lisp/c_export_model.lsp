@@ -1,10 +1,8 @@
-(load "f_functions")
-(vl-load-com)
 
 (defun c:TP_export_model( / selection counter entitydata entname layer_name pt_start pt_end E A
 							x1 y1 x2 y2 element_list support_list data_bin ins_pt f filename
 							element_data support_data support_type support_string my_command
-							module_path old_env_vars load_list block_name vl_obj att_value)
+							module_path old_env_vars load_list block_name vl_obj att_value load_data)
 	
 	(setq old_env_vars (env_get))
 	(setvar "cmdecho" 0)
@@ -89,7 +87,9 @@
 		(setq counter (+ 1 counter))
 			
 	 )	
-
+	
+	;(princ element_list)
+	
 	(setq f (open filename "w"))
 	
 	; write elements

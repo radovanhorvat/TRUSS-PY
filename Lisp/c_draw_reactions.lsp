@@ -22,8 +22,8 @@
 	(setq filename2 (vl-string-trim ".gtr" filename1))
 	(setq filename2 (strcat filename2 ".rct"))
 	
-	(setq force_data (read_forces filename1))
-	(setq force_data2 (read_forces filename2))
+	(setq force_data (read_csv filename1))
+	(setq force_data2 (read_csv filename2))
 	
 	(setq ins_pt (getpoint "\nSpecify diagram insertion point: "))
 	(setq ins_x (car ins_pt))
