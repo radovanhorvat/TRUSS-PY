@@ -1,18 +1,20 @@
 
-(defun c:TP_draw_geometry( / old_env_vars ins_pt force_data filename
+(defun c:TP_draw_geometry( / old_env_vars ins_pt geometry_data filename
 						   xc yc counter data_line x1 y1 z1 x2 y2 z2 F pt1 pt2
 						   dx dy ins_x ins_y text_x text_y pt_text text_str
-						   ln_tension ln_compression ln_zero)
+						   ln_tension ln_compression ln_zero text_str_nd1 text_str_nd2
+						   text_str_el ln_element ln_element_labels ln_node_labels
+						   node1_label node2_label)
 
 	(setq old_env_vars (env_get))
 	(setvar "osmode" 0)
 	(setvar "cmdecho" 0)
 
-	(setq element_layer "TRUSSPY_elements")
+	(setq ln_element "TRUSSPY_elements")
 	(setq ln_element_labels "TRUSSPY_element_labels")
 	(setq ln_node_labels "TRUSSPY_nodes_labels")
 
-	(command-s "._LAYER" "M" element_layer "C" "4" "" "")	
+	(command-s "._LAYER" "M" ln_element "C" "4" "" "")	
 	(command-s "._LAYER" "M" ln_element_labels "C" "3" "" "")
 	(command-s "._LAYER" "M" ln_node_labels "C" "2" "" "")
 	
@@ -20,15 +22,15 @@
 	(setq filename (vl-string-trim ".dwg" filename))
 	(setq filename (strcat filename ".gtr"))	
 	
-	(setq force_data (read_csv filename))
+	(setq geometry_data (read_csv filename))
 	
 	(setq ins_pt (getpoint "\nSpecify diagram insertion point: "))
 	(setq ins_x (car ins_pt))
 	(setq ins_y (cadr ins_pt))
 	
 	(setq counter 0)
-	(repeat (length force_data)		
-		(setq data_line (nth counter force_data))
+	(repeat (length geometry_data)		
+		(setq data_line (nth counter geometry_data))
 		(if (= counter 0)
 			(progn
 				(setq xc (nth 0 data_line))
@@ -60,7 +62,7 @@
 				(setq text_str_nd1 (strcat "nd " (rtos node1_label 2 0)))
 				(setq text_str_nd2 (strcat "nd " (rtos node2_label 2 0)))
 				
-				(setvar "CLAYER" element_layer)				
+				(setvar "CLAYER" ln_element)				
 				(command-s "._LINE" pt1 pt2 "")				
 				(setvar "CLAYER" ln_element_labels)				
 				(command-s "._TEXT" "J" "C" pt_text 0.1 0 text_str_el)				

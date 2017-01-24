@@ -1,5 +1,5 @@
 
-(defun c:TP_draw_stresses ( / old_env_vars ins_pt force_data filename
+(defun c:TP_draw_stresses ( / old_env_vars ins_pt stress_data filename
 						   xc yc counter data_line x1 y1 z1 x2 y2 z2 F pt1 pt2
 						   dx dy ins_x ins_y text_x text_y pt_text text_str
 						   ln_tension ln_compression ln_zero)
@@ -20,15 +20,15 @@
 	(setq filename (vl-string-trim ".dwg" filename))
 	(setq filename (strcat filename ".str"))	
 	
-	(setq force_data (read_csv filename))
+	(setq stress_data (read_csv filename))
 	
 	(setq ins_pt (getpoint "\nSpecify diagram insertion point: "))
 	(setq ins_x (car ins_pt))
 	(setq ins_y (cadr ins_pt))
 	
 	(setq counter 0)
-	(repeat (length force_data)		
-		(setq data_line (nth counter force_data))
+	(repeat (length stress_data)		
+		(setq data_line (nth counter stress_data))
 		(if (= counter 0)
 			(progn
 				(setq xc (nth 0 data_line))
