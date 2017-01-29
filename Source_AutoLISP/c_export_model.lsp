@@ -155,7 +155,8 @@
 	(close f)	 
 
 	(setq filename (strcat "\"" filename "\""))
-	(setq module_path "\"E:/Python_Scripts/moje/dsm3/Python/main.py\"")
+	(setq module_path "\"E:/Python_Scripts/moje/TRUSS-PY/Source_Python/main.py\"")
+	;(setq module_path "\"C:/ProgramData/Autodesk/ApplicationPlugins/TRUSS-PY.bundle/Resources/Source_Python/main.py\"")
 	(setq my_command (strcat "python " module_path " " filename))
 	(command "._shell" my_command)
 

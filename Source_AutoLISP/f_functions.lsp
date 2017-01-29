@@ -1,4 +1,4 @@
-; ENVIRONMENT VARIABLE GETTER AND SETTER
+; ENVIRONMENT VARIABLE GETTER
 (defun env_get ( / old_layer old_osmode old_orthomode old_cmdecho old_attdia old_insunits old_dimzin output_list)
 	; gets environment variables and returns
 	; a list containing them
@@ -12,6 +12,7 @@
 	(setq output_list (list old_layer old_osmode old_orthomode old_cmdecho old_attdia old_insunits old_dimzin))
 )
 
+; ENVIRONMENT VARIABLE SETTER
 (defun env_set (input_list)
 	; sets environment variable values to those in input_list
 	(setvar "clayer" (nth 0 input_list))	
@@ -104,7 +105,7 @@
 	)
 )
 
-; READ CSV FILE
+; CSV FILE READING
 (defun read_csv (filename / f aline data_line status data)
 
 	(setq f (open filename "r"))
