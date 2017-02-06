@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ApplicationPackage SchemaVersion="1.0" AppVersion="1.0"
+    ProductCode="12345678910"
+    Name="TRUSS-PY"
+>
+ 
+  <CompanyDetails
+    Name="Ime firme"
+    Email="support@firma.com"
+  />
+ 
+  <Components>
+  
+    <RuntimeRequirements 
+		SupportPath="./Contents/Source_AutoLISP;./Resources/dwg" 
+		OS="Win32|Win64|MacOS" 
+		Platform="AutoCAD*"
+	
+	/>
+  
+    <ComponentEntry
+	AppName="Loader"
+	ModuleName="./Contents/c_loader.lsp"
+    />
+
+    <ComponentEntry
+	AppName="Partial customization file"
+	ModuleName="./Resources/CUI/TRUSS-PY.cuix"
+    />
+	
+	</Components>
+
+	
+</ApplicationPackage>
