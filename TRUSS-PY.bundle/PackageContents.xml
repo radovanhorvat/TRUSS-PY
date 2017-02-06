@@ -21,7 +21,7 @@
   
     <ComponentEntry
 	AppName="Loader"
-	ModuleName="./Contents/c_loader.lsp"
+	ModuleName="./Contents/Source_AutoLISP/c_loader.lsp"
     />
 
     <ComponentEntry
