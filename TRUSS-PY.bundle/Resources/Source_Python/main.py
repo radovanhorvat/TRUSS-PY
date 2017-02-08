@@ -2,9 +2,10 @@ import trusspy_parser
 import trusspy_structure
 import trusspy_solver
 import trusspy_graphics
+import trusspy_report
 import sys
 
-def test(filename):
+def run_analysis(filename):
     data = trusspy_parser.Parser(filename)
     nodes, elements, loads = data.get_all()
     truss = trusspy_structure.Truss2D(nodes, elements, loads)
@@ -29,9 +30,9 @@ def test(filename):
 if __name__ == '__main__':
 
     filename = sys.argv[1]
-    test(filename)
+    run_analysis(filename)
 
-    # filename = r'E:\Python_Scripts\moje\DSM3\test models\test02\Drawing1.tpy'
+    # filename = r'E:\Python_Scripts\moje\TRUSS-PY\test models\test07\test07.tpy'
     # data = trusspy_parser.Parser(filename)
     # nodes, elements, loads = data.get_all()
     # truss = trusspy_structure.Truss2D(nodes, elements, loads)
@@ -41,14 +42,8 @@ if __name__ == '__main__':
     # sol.solve()
     # sol.get_reactions()
     # sol.get_forces_stresses()
-    # print("DONE")
-    # print("Generating output ...", end=" ")
-    # g = trusspy_graphics.Graphics(sol, data.filename)
-    # g.output_geometry()
-    # g.output_displacements()
-    # g.output_forces()
-    # g.output_stresses()
-    # g.output_reactions()
-    # print("DONE")
+    # report = trusspy_report.Report(sol, 'blabla')
     #
-    # input("\nPress ENTER to exit")
+    # print(report.print_general_info())
+    # print(report.print_node_info())
+    # print(report.print_element_info())
