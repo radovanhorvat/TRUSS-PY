@@ -29,21 +29,23 @@ def run_analysis(filename):
 
 if __name__ == '__main__':
 
-    filename = sys.argv[1]
-    run_analysis(filename)
+    #filename = sys.argv[1]
+    #run_analysis(filename)
 
-    # filename = r'E:\Python_Scripts\moje\TRUSS-PY\test models\test07\test07.tpy'
-    # data = trusspy_parser.Parser(filename)
-    # nodes, elements, loads = data.get_all()
-    # truss = trusspy_structure.Truss2D(nodes, elements, loads)
-    # truss.print_info_short()
-    # print("\nSolving ...", end=" ")
-    # sol = trusspy_solver.Solver(truss)
-    # sol.solve()
-    # sol.get_reactions()
-    # sol.get_forces_stresses()
-    # report = trusspy_report.Report(sol, 'blabla')
-    #
-    # print(report.print_general_info())
-    # print(report.print_node_info())
-    # print(report.print_element_info())
+    filename = r'E:\Python_Scripts\moje\TRUSS-PY\test models\test07\test07.tpy'
+    data = trusspy_parser.Parser(filename)
+    nodes, elements, loads = data.get_all()
+    truss = trusspy_structure.Truss2D(nodes, elements, loads)
+    truss.print_info_short()
+    print("\nSolving ...", end=" ")
+    sol = trusspy_solver.Solver(truss)
+    sol.solve()
+    sol.get_reactions()
+    sol.get_forces_stresses()
+    report = trusspy_report.Report(sol, 'blabla')
+
+    print(report.print_general_info())
+    print(report.print_node_info())
+    print(report.print_element_info())
+    print(report.print_load_info())
+    print(report.print_displacements())

@@ -65,6 +65,36 @@ class Report:
                                                   element.E, element.A)
         return info_string
 
+    def print_load_info(self):
+        """
+
+        :return: info_string: string containing load info
+        """
+        info_string = ''
+        info_string += self.print_heading('LOAD INFO')
+        info_string += "\nnode  Px   Py"
+        for node_label, load in self.solution.truss.load_dict.items():
+            info_string += "\n{}   {}   {}".format(node_label, load[0], load[1])
+        return info_string
+
+    def print_displacements(self, precision=8):
+        """
+
+        :return: info_string: string containing displacements
+        """
+        info_string = ''
+        info_string += self.print_heading('DISPLACEMENTS')
+        info_string += "\nnode  Ux   Uy"
+        u = self.solution.u
+        node_dofs = self.solution.truss.dof_dict_node
+        for label, node in self.solution.truss.node_dict.items():
+            dofs = node_dofs[label]
+            u_total = u.take(dofs)
+            Ux, Uy = round(u_total[0], precision), round(u_total[1], precision)
+            info_string += "\n{}   {}   {}".format(label, Ux, Uy)
+        return info_string
+
+
     def generate_report(self):
         """
 
