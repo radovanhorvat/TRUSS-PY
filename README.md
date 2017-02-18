@@ -16,3 +16,8 @@ A 2D FEM truss analysis program which connects AutoCAD and Python in both direct
 ## Installation
 
 Copy the "TRUSS-PY.bundle" directory into "C:\ProgramData\Autodesk\ApplicationPlugins".
+
+## Demo video
+
+[https://youtu.be/gaU_2SlejAM](https://youtu.be/gaU_2SlejAM)
+
